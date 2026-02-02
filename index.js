@@ -2,7 +2,7 @@ const express= require('express')
 const app=express()
 const cors=require('cors')
 const port= process.env.PORT || 3000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 // middleware
 app.use(cors());
@@ -35,11 +35,46 @@ async function run() {
 const productDb=client.db('productDb')
 const productColl=productDb.collection('products')
 
-// 1. Post to send the data to the Database
+// 1. Post => send Data 
 app.post('/products',async(req,res) => {
     const newProduct=req.body;
     const result=await productColl.insertOne(newProduct);
     res.send(result);
+})
+// 2. Get => find all Data from Database
+app.get('/products', async(req,res) => {
+    const cursor=productColl.find();
+    const result=await cursor.toArray();
+    res.send(result)
+})
+// 3.Get:id => find specific Data from Database
+app.get('/products/:id',async(req,res) =>{
+    const id=req.params.id;
+    const query={_id:new ObjectId(id)}
+    const result=await productColl.findOne(query);
+    res.send(result)
+})
+
+//4. Delelte => Delete Data from Database
+app.delete('/products/:id',async(req,res) => {
+    const id=req.params.id;
+    const query ={ _id:new ObjectId(id)}
+    const result=await productColl.deleteOne(query);
+    res.send(result)
+})
+// 5. Patch => Update user Data
+app.patch('/products/:id',async(req,res) => {
+    const id=req.params.id;
+    const UpdateProduct=req.body;
+    const query ={ _id:new ObjectId(id)};
+    const update ={
+        $set: {
+            name:UpdateProduct.name,
+            price:UpdateProduct.price,
+        }
+    }
+    const result=await productColl.updateOne(query,update)
+    res.send(result)
 })
 
 
