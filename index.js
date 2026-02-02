@@ -35,14 +35,31 @@ async function run() {
 const productDb=client.db('productDb')
 const productColl=productDb.collection('products')
 
-// 1. Post => send Data 
+// 1. Post => send Data only one
+
+// app.post('/products',async(req,res) => {
+//     const newProduct=req.body;
+//     const result=await productColl.insertOne(newProduct);
+//     res.send(result);
+// })
+
+// # Post many data in 1 time
+
 app.post('/products',async(req,res) => {
-    const newProduct=req.body;
-    const result=await productColl.insertOne(newProduct);
+    const newProducts=req.body;
+    const result=await productColl.insertMany(newProducts);
     res.send(result);
 })
+
 // 2. Get => find all Data from Database
 app.get('/products', async(req,res) => {
+ //# sort ,limit,skip
+ 
+    // const sortFields={price_max:1};
+    // const limitNum=3;
+    // const skipNum=3;
+    // const cursor=productColl.find().sort(sortFields).limit(limitNum).skip(skipNum);
+// 
     const cursor=productColl.find();
     const result=await cursor.toArray();
     res.send(result)
