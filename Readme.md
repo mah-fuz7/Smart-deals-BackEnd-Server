@@ -12,3 +12,11 @@ if (Array.isArray(newProduct)){
     } else {
       result = await productColl.insertOne(newProducts);
 }
+
+# Query paramiter?
+
+# Primary Key and foregien key?
+
+# find specific data 
+=> let's need specific email data
+=> http://localhost:3000/products?email=seller7@example.com

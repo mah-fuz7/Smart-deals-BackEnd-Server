@@ -8,8 +8,8 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 app.use(cors());
 app.use(express.json())
 
-// #UserName : UserProductdb
-// #UserPassword : 8jw2axEpxr7uGk7b
+// #UserName : UserProductdb   
+// #UserPassword : 8jw2axEpxr7uGk7b 
 
 const uri = "mongodb+srv://UserProductdb:8jw2axEpxr7uGk7b@cluster0.due0kmg.mongodb.net/?appName=Cluster0";
 
@@ -23,7 +23,7 @@ const client = new MongoClient(uri, {
 });
 
 app.get('/',(req,res) => {
-    res.send('Smart Deals Data comming soon')
+    res.send('Smart Deals Data comming very  soon')
 })
 
 // Run Func
@@ -34,22 +34,22 @@ async function run() {
 // user Database and Database collection Here
 const productDb=client.db('productDb')
 const productColl=productDb.collection('products')
-
+const bidsColl=productDb.collection('bids')
 // 1. Post => send Data only one
 
-// app.post('/products',async(req,res) => {
-//     const newProduct=req.body;
-//     const result=await productColl.insertOne(newProduct);
-//     res.send(result);
-// })
+app.post('/products',async(req,res) => {
+    const newProduct=req.body;
+    const result=await productColl.insertOne(newProduct);
+    res.send(result);
+})
 
 // # Post many data in 1 time
 
-app.post('/products',async(req,res) => {
-    const newProducts=req.body;
-    const result=await productColl.insertMany(newProducts);
-    res.send(result);
-})
+// app.post('/products',async(req,res) => {
+//     const newProducts=req.body;
+//     const result=await productColl.insertMany(newProducts);
+//     res.send(result);
+// })
 
 // 2. Get => find all Data from Database
 app.get('/products', async(req,res) => {
@@ -60,8 +60,16 @@ app.get('/products', async(req,res) => {
     // const skipNum=3;
     // const cursor=productColl.find().sort(sortFields).limit(limitNum).skip(skipNum);
 // 
-    const cursor=productColl.find();
-    const result=await cursor.toArray();
+console.log(req.query)
+const email=req.query.email;
+const query={}
+if(email){
+    query.email=email;
+}
+
+    const cursor= productColl.find(query);
+    const result= await cursor.toArray();
+    // const result=await productColl.find().toArray();
     res.send(result)
 })
 // 3.Get:id => find specific Data from Database
@@ -93,12 +101,35 @@ app.patch('/products/:id',async(req,res) => {
     const result=await productColl.updateOne(query,update)
     res.send(result)
 })
-
-
-// app Listen Untill Database Not Ready
-app.listen(port, () => {
-    console.log(`server is running at ${port}`)
+//  # bids api is Here 
+// Get all the bids from database
+app.get('/bids',async(req,res) => {
+    const cursor=bidsColl.find();
+    const result=await cursor.toArray();
+    res.send(result);
 })
+// get specific bid by id
+app.get('/bids/:id',async(req,res) => {
+    const id=req.params.id;
+    const query={ _id:new ObjectId(id)};
+    const result=await bidsColl.findOne(query);
+    res.send(result);
+
+})
+// delete specific bid by id
+app.delete('/bids/:id' ,async(req,res) => {
+    const id=req.params.id;
+    const query={_id:new ObjectId(id)};
+    const result=await bidsColl.deleteOne(query);
+    res.send(result);
+})
+// post a bid in database
+app.post('/bids', async(req,res) => {
+    const newBid=req.body;
+    const result=await bidsColl.insertOne(newBid);
+    res.send(result);
+})
+
     // send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
@@ -110,5 +141,11 @@ app.listen(port, () => {
 
     }
 }
+
+// app Listen Untill Database Not Ready
+app.listen(port, () => {
+    console.log(`server is running at ${port}`)
+})
+
 run().catch(console.dir);
 
