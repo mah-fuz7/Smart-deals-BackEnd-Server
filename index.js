@@ -35,6 +35,26 @@ async function run() {
 const productDb=client.db('productDb')
 const productColl=productDb.collection('products')
 const bidsColl=productDb.collection('bids')
+const userColl=productDb.collection('user')
+
+// user Api
+app.post('/users',async(req,res) => {
+    const newUser=req.body;
+
+// cheak user Available or not 
+const email=req.body.email;
+const query={email:email};
+const existingUser=await userColl.findOne(query);
+if(existingUser){
+    return res.send({message:'User already exists'});
+}else{
+ const result=await userColl.insertOne(newUser);
+    res.send(result);
+}
+
+   
+})
+
 // 1. Post => send Data only one
 
 app.post('/products',async(req,res) => {
